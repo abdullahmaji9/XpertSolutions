@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expert Solution – Microsoft Partner</title>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --azure:#0078D4;--azure2:#50E6FF;--green:#00B294;
+  --yellow:#FFB900;--red:#D83B01;--purple:#8764B8;
+  --bg:#03080F;--card:rgba(255,255,255,0.03);
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);}
+body{font-family:'Exo 2',sans-serif;color:#fff;}
+
+/* ═══ CANVAS BG ═══ */
+#bgCanvas{position:fixed;inset:0;z-index:0;}
+
+/* ═══ GRID ═══ */
+.grid{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(0,120,212,0.06) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,120,212,0.06) 1px,transparent 1px);
+  background-size:56px 56px;
+  animation:gridMove 25s linear infinite;
+}
+@keyframes gridMove{to{background-position:56px 56px;}}
+
+/* ═══ SCANLINES ═══ */
+.scanlines{
+  position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.15) 2px,rgba(0,0,0,0.15) 4px);
+}
+
+/* ═══ LAYOUT ═══ */
+.page{position:relative;z-index:10;height:100vh;display:flex;flex-direction:column;}
+
+/* ═══ TOP NAV ═══ */
+.nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 48px;
+  border-bottom:1px solid rgba(0,120,212,0.2);
+  background:rgba(3,8,15,0.7);backdrop-filter:blur(20px);
+  animation:slideDown 0.8s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes slideDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+
+.nav-ms{display:flex;align-items:center;gap:12px;}
+.ms4{display:grid;grid-template-columns:1fr 1fr;gap:3px;}
+.ms4 span{display:block;width:11px;height:11px;border-radius:1px;}
+.ms-r{background:#F35325;}.ms-g{background:#81BC06;}.ms-b{background:#05A6F0;}.ms-y{background:#FFBA08;}
+.ms-txt{font-family:'Rajdhani',sans-serif;font-size:11px;color:rgba(80,230,255,0.6);letter-spacing:2.5px;text-transform:uppercase;}
+
+.nav-links{display:flex;gap:28px;font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:1.5px;text-transform:uppercase;}
+.nav-links span{cursor:default;transition:color .3s;}
+.nav-links span:hover{color:var(--azure2);}
+
+.partner-pill{
+  font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;
+  padding:6px 16px;border-radius:20px;letter-spacing:2px;text-transform:uppercase;
+  border:1px solid rgba(0,120,212,0.5);color:var(--azure2);
+  background:rgba(0,120,212,0.08);
+  animation:pillGlow 3s ease-in-out infinite;
+}
+@keyframes pillGlow{0%,100%{box-shadow:0 0 8px rgba(0,120,212,0.3)}50%{box-shadow:0 0 20px rgba(80,230,255,0.4)}}
+
+/* ═══ HERO ═══ */
+.hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 40px;position:relative;}
+
+/* ═══ LOGO CARD ═══ */
+.logo-wrap{
+  position:relative;margin-bottom:44px;
+  animation:logoIn 1.2s cubic-bezier(.16,1,.3,1) 0.2s both;
+}
+@keyframes logoIn{from{opacity:0;transform:scale(0.8) translateY(30px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+/* Rotating border rings */
+.ring{
+  position:absolute;border-radius:24px;
+  border:1px solid transparent;pointer-events:none;
+}
+.ring-1{
+  inset:-18px;
+  border-image:linear-gradient(45deg,transparent,rgba(0,120,212,0.6),transparent,rgba(80,230,255,0.4),transparent) 1;
+  animation:ringRotate 8s linear infinite;
+}
+.ring-2{
+  inset:-30px;border-radius:28px;
+  border-image:linear-gradient(135deg,transparent,rgba(0,178,148,0.4),transparent,rgba(0,120,212,0.3),transparent) 1;
+  animation:ringRotate 12s linear infinite reverse;
+}
+@keyframes ringRotate{
+  0%{border-image:linear-gradient(0deg,transparent,rgba(0,120,212,0.6),transparent,rgba(80,230,255,0.4),transparent) 1}
+  25%{border-image:linear-gradient(90deg,transparent,rgba(0,120,212,0.6),transparent,rgba(80,230,255,0.4),transparent) 1}
+  50%{border-image:linear-gradient(180deg,transparent,rgba(0,120,212,0.6),transparent,rgba(80,230,255,0.4),transparent) 1}
+  75%{border-image:linear-gradient(270deg,transparent,rgba(0,120,212,0.6),transparent,rgba(80,230,255,0.4),transparent) 1}
+  100%{border-image:linear-gradient(360deg,transparent,rgba(0,120,212,0.6),transparent,rgba(80,230,255,0.4),transparent) 1}
+}
+
+/* Corner accents */
+.corner{position:absolute;width:16px;height:16px;}
+.corner::before,.corner::after{content:'';position:absolute;background:var(--azure2);}
+.corner::before{width:100%;height:2px;top:0;}
+.corner::after{width:2px;height:100%;top:0;}
+.c-tl{top:-2px;left:-2px;}
+.c-tr{top:-2px;right:-2px;transform:scaleX(-1);}
+.c-bl{bottom:-2px;left:-2px;transform:scaleY(-1);}
+.c-br{bottom:-2px;right:-2px;transform:scale(-1);}
+
+.logo-card{
+  position:relative;
+  background:linear-gradient(135deg,rgba(255,255,255,0.06) 0%,rgba(0,120,212,0.04) 50%,rgba(255,255,255,0.02) 100%);
+  border:1px solid rgba(0,120,212,0.3);
+  border-radius:20px;padding:44px 60px;
+  backdrop-filter:blur(40px);
+  box-shadow:
+    0 0 60px rgba(0,0,0,0.6),
+    0 0 1px rgba(80,230,255,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    inset 0 -1px 0 rgba(0,120,212,0.1);
+}
+.logo-card::after{
+  content:'';position:absolute;inset:0;border-radius:20px;
+  background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(80,230,255,0.08),transparent);
+  pointer-events:none;
+}
+
+/* Logo mark */
+.logo-inner{display:flex;align-items:center;gap:22px;}
+
+/* Hex icon */
+.hex-wrap{position:relative;width:80px;height:80px;flex-shrink:0;}
+.hex-wrap svg{width:80px;height:80px;}
+.hex-spin-ring{
+  position:absolute;inset:-8px;
+  border-radius:50%;
+  border:1px dashed rgba(0,120,212,0.4);
+  animation:spinSlow 15s linear infinite;
+}
+@keyframes spinSlow{to{transform:rotate(360deg);}}
+.hex-glow{
+  position:absolute;inset:-4px;
+  background:radial-gradient(circle,rgba(0,120,212,0.3),transparent 70%);
+  border-radius:50%;
+  animation:hexGlowPulse 2s ease-in-out infinite;
+}
+@keyframes hexGlowPulse{0%,100%{opacity:0.5;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
+
+/* Text */
+.logo-texts{}
+.logo-name{
+  font-family:'Exo 2',sans-serif;font-weight:900;font-size:48px;
+  letter-spacing:-1px;line-height:1;
+  background:linear-gradient(135deg,#fff 0%,#A8D8FF 35%,#50E6FF 65%,#0078D4 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 20px rgba(80,230,255,0.3));
+}
+.logo-sub-line{
+  display:flex;align-items:center;gap:10px;margin-top:6px;
+}
+.logo-sub-text{
+  font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;
+  letter-spacing:4px;text-transform:uppercase;color:rgba(80,230,255,0.7);
+}
+.sub-dot{width:4px;height:4px;border-radius:50%;background:var(--azure);animation:dotBlink 2s ease-in-out infinite;}
+@keyframes dotBlink{0%,100%{opacity:1;box-shadow:0 0 6px var(--azure)}50%{opacity:0.3;box-shadow:none}}
+
+.logo-divider{
+  width:100%;height:1px;margin:16px 0 12px;
+  background:linear-gradient(90deg,transparent,rgba(0,120,212,0.8),rgba(80,230,255,0.4),rgba(0,120,212,0.8),transparent);
+  position:relative;overflow:visible;
+}
+.divider-shine{
+  position:absolute;top:-1px;left:-20%;width:40%;height:3px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.8),transparent);
+  animation:shineMove 3s ease-in-out infinite;border-radius:2px;
+}
+@keyframes shineMove{0%{left:-40%}100%{left:140%}}
+
+.logo-ecosystem{
+  display:flex;align-items:center;justify-content:center;gap:16px;
+  font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(80,230,255,0.45);
+}
+.eco-sep{color:rgba(0,120,212,0.4);}
+
+/* ═══ HEADLINE ═══ */
+.headline{
+  font-family:'Exo 2',sans-serif;font-weight:200;
+  font-size:clamp(20px,3vw,36px);
+  text-align:center;line-height:1.4;
+  color:rgba(255,255,255,0.8);
+  max-width:700px;
+  animation:fadeUp 1s 0.7s both;
+}
+.headline strong{
+  font-weight:900;
+  background:linear-gradient(90deg,var(--azure),var(--azure2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══ TECH BADGES ═══ */
+.badges{
+  display:flex;flex-wrap:wrap;gap:8px;justify-content:center;
+  margin-top:28px;
+  animation:fadeUp 1s 0.9s both;
+}
+.badge{
+  display:flex;align-items:center;gap:7px;
+  padding:7px 15px;border-radius:30px;font-size:11px;
+  font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:1px;text-transform:uppercase;
+  border:1px solid;backdrop-filter:blur(10px);
+  transition:transform .25s,box-shadow .25s;cursor:default;
+}
+.badge:hover{transform:translateY(-3px) scale(1.03);}
+.b1{border-color:rgba(0,120,212,.5);color:#60BFFF;background:rgba(0,120,212,.1);}
+.b1:hover{box-shadow:0 8px 24px rgba(0,120,212,.3);}
+.b2{border-color:rgba(0,120,212,.4);color:#90CFFF;background:rgba(0,100,200,.08);}
+.b3{border-color:rgba(134,100,184,.5);color:#C4A8FF;background:rgba(134,100,184,.1);}
+.b3:hover{box-shadow:0 8px 24px rgba(134,100,184,.3);}
+.b4{border-color:rgba(80,230,255,.4);color:var(--azure2);background:rgba(80,230,255,.07);}
+.b4:hover{box-shadow:0 8px 24px rgba(80,230,255,.2);}
+.b5{border-color:rgba(0,178,148,.5);color:#4EEFD1;background:rgba(0,178,148,.08);}
+.b5:hover{box-shadow:0 8px 24px rgba(0,178,148,.25);}
+.b6{border-color:rgba(255,185,0,.4);color:#FFD060;background:rgba(255,185,0,.07);}
+.b6:hover{box-shadow:0 8px 24px rgba(255,185,0,.2);}
+.b7{border-color:rgba(216,59,1,.4);color:#FF8A60;background:rgba(216,59,1,.08);}
+.b8{border-color:rgba(0,178,148,.4);color:#60EDD0;background:rgba(0,178,148,.07);}
+
+.bdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.bd1{background:#0078D4;box-shadow:0 0 8px #0078D4;}
+.bd2{background:#50A0FF;box-shadow:0 0 8px #50A0FF;}
+.bd3{background:#8764B8;box-shadow:0 0 8px #8764B8;}
+.bd4{background:#50E6FF;box-shadow:0 0 8px #50E6FF;}
+.bd5{background:#00B294;box-shadow:0 0 8px #00B294;}
+.bd6{background:#FFB900;box-shadow:0 0 8px #FFB900;}
+.bd7{background:#D83B01;box-shadow:0 0 8px #D83B01;}
+.bd8{background:#00B294;box-shadow:0 0 8px #00B294;}
+
+/* ═══ SERVICE CARDS ═══ */
+.cards{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+  padding:0 40px 16px;
+  animation:fadeUp 1s 1.1s both;
+}
+.card{
+  background:rgba(255,255,255,0.025);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:14px;padding:22px 18px;
+  transition:all .3s;cursor:default;position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;inset:0;border-radius:14px;
+  background:linear-gradient(135deg,var(--card-accent,rgba(0,120,212,0.08)),transparent);
+  opacity:0;transition:opacity .3s;
+}
+.card:hover{transform:translateY(-5px);border-color:var(--card-border,rgba(0,120,212,0.4));}
+.card:hover::before{opacity:1;}
+.card:hover .card-glow{opacity:1;}
+.card-glow{
+  position:absolute;top:-30px;right:-30px;width:100px;height:100px;
+  border-radius:50%;filter:blur(30px);opacity:0;transition:opacity .3s;
+  background:var(--glow-color,rgba(0,120,212,0.4));
+}
+.c1{--card-accent:rgba(0,120,212,0.08);--card-border:rgba(0,120,212,0.4);--glow-color:rgba(0,120,212,0.3);}
+.c2{--card-accent:rgba(0,100,200,0.08);--card-border:rgba(0,100,200,0.4);--glow-color:rgba(0,120,212,0.2);}
+.c3{--card-accent:rgba(255,185,0,0.06);--card-border:rgba(255,185,0,0.35);--glow-color:rgba(255,185,0,0.2);}
+.c4{--card-accent:rgba(0,178,148,0.08);--card-border:rgba(0,178,148,0.4);--glow-color:rgba(0,178,148,0.25);}
+.card-ico{font-size:28px;margin-bottom:12px;display:block;}
+.card-title{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;margin-bottom:6px;color:#fff;}
+.card-desc{font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;}
+
+/* ═══ FOOTER ═══ */
+.footer{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:13px 48px;
+  border-top:1px solid rgba(0,120,212,0.15);
+  background:rgba(3,8,15,0.8);backdrop-filter:blur(20px);
+  font-size:10px;color:rgba(255,255,255,0.25);letter-spacing:1.5px;text-transform:uppercase;
+}
+.pulse-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#00B294;box-shadow:0 0 8px #00B294;margin-right:7px;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:0.6}}
+
+/* ═══ FLOATING PARTICLES (canvas-based) ═══ */
+#particleCanvas{position:fixed;inset:0;z-index:3;pointer-events:none;}
+
+/* ═══ DATA STREAM LINES ═══ */
+#streamCanvas{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:0.5;}
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<canvas id="streamCanvas"></canvas>
+<canvas id="particleCanvas"></canvas>
+<div class="grid"></div>
+<div class="scanlines"></div>
+
+<div class="page">
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-ms">
+      <div class="ms4">
+        <span class="ms-r"></span><span class="ms-g"></span>
+        <span class="ms-b"></span><span class="ms-y"></span>
+      </div>
+      <span class="ms-txt">Microsoft Technology Partner</span>
+    </div>
+    <div class="nav-links">
+      <span>Azure Cloud</span>
+      <span>Microsoft 365</span>
+      <span>Enterprise IT</span>
+      <span>AI Solutions</span>
+      <span>Security</span>
+    </div>
+    <div class="partner-pill">⬡ Gold Partner</div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+
+    <!-- LOGO -->
+    <div class="logo-wrap">
+      <div class="ring ring-1"></div>
+      <div class="ring ring-2"></div>
+      <div class="corner c-tl"></div>
+      <div class="corner c-tr"></div>
+      <div class="corner c-bl"></div>
+      <div class="corner c-br"></div>
+
+      <div class="logo-card">
+        <div class="logo-inner">
+
+          <!-- Hexagon Icon -->
+          <div class="hex-wrap">
+            <div class="hex-glow"></div>
+            <div class="hex-spin-ring"></div>
+            <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="hg" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#0078D4"/>
+                  <stop offset="100%" stop-color="#50E6FF"/>
+                </linearGradient>
+                <linearGradient id="hgFill" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="rgba(0,120,212,0.25)"/>
+                  <stop offset="100%" stop-color="rgba(80,230,255,0.08)"/>
+                </linearGradient>
+                <filter id="fg"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+              </defs>
+              <!-- Outer hex -->
+              <polygon points="40,4 70,22 70,58 40,76 10,58 10,22" fill="url(#hgFill)" stroke="url(#hg)" stroke-width="1.5" filter="url(#fg)"/>
+              <!-- Mid hex -->
+              <polygon points="40,13 63,27 63,53 40,67 17,53 17,27" fill="none" stroke="url(#hg)" stroke-width="0.6" opacity="0.4"/>
+              <!-- Inner hex -->
+              <polygon points="40,22 56,31 56,49 40,58 24,49 24,31" fill="none" stroke="url(#hg)" stroke-width="0.4" opacity="0.25"/>
+              <!-- ES Text -->
+              <text x="15" y="52" font-family="'Exo 2',sans-serif" font-weight="900" font-size="28" fill="url(#hg)" filter="url(#fg)">ES</text>
+              <!-- Corner nodes -->
+              <circle cx="40" cy="4" r="2.5" fill="#50E6FF" opacity="0.9"><animate attributeName="opacity" values="0.9;0.3;0.9" dur="2s" repeatCount="indefinite"/></circle>
+              <circle cx="70" cy="22" r="2.5" fill="#0078D4" opacity="0.9"><animate attributeName="opacity" values="0.9;0.3;0.9" dur="2.5s" repeatCount="indefinite"/></circle>
+              <circle cx="70" cy="58" r="2.5" fill="#50E6FF" opacity="0.9"><animate attributeName="opacity" values="0.9;0.3;0.9" dur="1.8s" repeatCount="indefinite"/></circle>
+              <circle cx="40" cy="76" r="2.5" fill="#0078D4" opacity="0.9"><animate attributeName="opacity" values="0.9;0.3;0.9" dur="2.2s" repeatCount="indefinite"/></circle>
+              <circle cx="10" cy="58" r="2.5" fill="#50E6FF" opacity="0.9"><animate attributeName="opacity" values="0.9;0.3;0.9" dur="3s" repeatCount="indefinite"/></circle>
+              <circle cx="10" cy="22" r="2.5" fill="#0078D4" opacity="0.9"><animate attributeName="opacity" values="0.9;0.3;0.9" dur="1.5s" repeatCount="indefinite"/></circle>
+            </svg>
+          </div>
+
+          <!-- Text -->
+          <div class="logo-texts">
+            <div class="logo-name">Expert Solution</div>
+            <div class="logo-sub-line">
+              <span class="sub-dot"></span>
+              <span class="logo-sub-text">Technology &amp; IT Services</span>
+              <span class="sub-dot" style="animation-delay:.5s"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="logo-divider"><div class="divider-shine"></div></div>
+
+        <div class="logo-ecosystem">
+          <span>Microsoft Azure</span><span class="eco-sep">·</span>
+          <span>Microsoft 365</span><span class="eco-sep">·</span>
+          <span>Cloud Infrastructure</span><span class="eco-sep">·</span>
+          <span>Enterprise IT</span><span class="eco-sep">·</span>
+          <span>Digital Transformation</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- HEADLINE -->
+    <div class="headline">
+      Empowering Enterprises Through<br><strong>Microsoft Cloud Intelligence</strong>
+    </div>
+
+    <!-- BADGES -->
+    <div class="badges">
+      <div class="badge b1"><span class="bdot bd1"></span>Microsoft Azure</div>
+      <div class="badge b2"><span class="bdot bd2"></span>Microsoft 365</div>
+      <div class="badge b3"><span class="bdot bd3"></span>Microsoft Teams</div>
+      <div class="badge b4"><span class="bdot bd4"></span>Cloud Infrastructure</div>
+      <div class="badge b5"><span class="bdot bd5"></span>Azure AI &amp; Copilot</div>
+      <div class="badge b6"><span class="bdot bd6"></span>Azure Security</div>
+      <div class="badge b7"><span class="bdot bd7"></span>Azure Networking</div>
+      <div class="badge b8"><span class="bdot bd8"></span>Enterprise IT</div>
+    </div>
+
+  </section>
+
+  <!-- CARDS -->
+  <div class="cards">
+    <div class="card c1">
+      <div class="card-glow"></div>
+      <span class="card-ico">☁️</span>
+      <div class="card-title">Azure Cloud Solutions</div>
+      <div class="card-desc">Scalable cloud infrastructure, migration &amp; managed Azure services.</div>
+    </div>
+    <div class="card c2">
+      <div class="card-glow"></div>
+      <span class="card-ico">📊</span>
+      <div class="card-title">Microsoft 365</div>
+      <div class="card-desc">M365, Teams, SharePoint, Exchange &amp; Intune for modern workplaces.</div>
+    </div>
+    <div class="card c3">
+      <div class="card-glow"></div>
+      <span class="card-ico">🔐</span>
+      <div class="card-title">Security &amp; Compliance</div>
+      <div class="card-desc">Zero-trust, Microsoft Defender, Sentinel SIEM &amp; compliance.</div>
+    </div>
+    <div class="card c4">
+      <div class="card-glow"></div>
+      <span class="card-ico">🤖</span>
+      <div class="card-title">AI &amp; Digital Transform</div>
+      <div class="card-desc">Azure AI, Copilot, Power Platform &amp; intelligent automation.</div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div><span class="pulse-dot"></span>All Systems Operational · Azure Status: Active</div>
+    <div>Expert Solution © 2025 · Microsoft Gold Partner · Karachi, Pakistan</div>
+    <div>ISO 27001 · Azure Expert MSP · MCSE Certified</div>
+  </footer>
+
+</div>
+
+<script>
+// ═══ BACKGROUND NEBULA CANVAS ═══
+(function(){
+  const c=document.getElementById('bgCanvas');
+  const ctx=c.getContext('2d');
+  let W,H,t=0;
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#03080F';ctx.fillRect(0,0,W,H);
+    // Nebula blobs
+    const blobs=[
+      {x:W*.15,y:H*.2,r:W*.35,c:'rgba(0,120,212,0.12)',dx:Math.sin(t*.003)*40,dy:Math.cos(t*.002)*30},
+      {x:W*.8,y:H*.7,r:W*.28,c:'rgba(80,230,255,0.07)',dx:Math.cos(t*.004)*30,dy:Math.sin(t*.003)*25},
+      {x:W*.5,y:H*.5,r:W*.2,c:'rgba(0,178,148,0.06)',dx:Math.sin(t*.005)*20,dy:Math.cos(t*.004)*20},
+      {x:W*.9,y:H*.1,r:W*.22,c:'rgba(134,100,184,0.05)',dx:Math.cos(t*.003)*35,dy:Math.sin(t*.005)*20},
+    ];
+    blobs.forEach(b=>{
+      const g=ctx.createRadialGradient(b.x+b.dx,b.y+b.dy,0,b.x+b.dx,b.y+b.dy,b.r);
+      g.addColorStop(0,b.c);g.addColorStop(1,'transparent');
+      ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    });
+    t++;requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ═══ DATA STREAM LINES ═══
+(function(){
+  const c=document.getElementById('streamCanvas');
+  const ctx=c.getContext('2d');
+  let W,H;
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+
+  const lines=[];
+  for(let i=0;i<18;i++){
+    lines.push({
+      x:Math.random()*W,y:Math.random()*H,
+      len:60+Math.random()*120,
+      speed:0.3+Math.random()*0.7,
+      opacity:0.1+Math.random()*0.3,
+      w:Math.random()>0.5,// horizontal
+      color:Math.random()>0.5?'#0078D4':'#50E6FF',
+      progress:Math.random(),
+    });
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    lines.forEach(l=>{
+      l.progress+=l.speed/W;
+      if(l.progress>1){
+        l.progress=0;
+        l.x=Math.random()*W;l.y=Math.random()*H;
+        l.len=60+Math.random()*120;
+        l.opacity=0.1+Math.random()*0.3;
+      }
+      const alpha=Math.sin(l.progress*Math.PI)*l.opacity;
+      ctx.strokeStyle=l.color;ctx.lineWidth=1;ctx.globalAlpha=alpha;
+      ctx.beginPath();
+      if(l.w){ctx.moveTo(l.x,l.y);ctx.lineTo(l.x+l.len,l.y);}
+      else{ctx.moveTo(l.x,l.y);ctx.lineTo(l.x,l.y+l.len);}
+      ctx.stroke();
+      // moving dot
+      ctx.globalAlpha=alpha*2;
+      ctx.fillStyle='#fff';
+      ctx.beginPath();
+      if(l.w)ctx.arc(l.x+l.len*l.progress,l.y,1.5,0,Math.PI*2);
+      else ctx.arc(l.x,l.y+l.len*l.progress,1.5,0,Math.PI*2);
+      ctx.fill();
+    });
+    ctx.globalAlpha=1;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ═══ PARTICLE SYSTEM ═══
+(function(){
+  const c=document.getElementById('particleCanvas');
+  const ctx=c.getContext('2d');
+  let W,H;
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+
+  const colors=['#0078D4','#50E6FF','#00B294','#FFB900','#8764B8'];
+  const particles=[];
+  for(let i=0;i<80;i++){
+    particles.push({
+      x:Math.random()*W,y:Math.random()*H,
+      vx:(Math.random()-.5)*0.4,vy:-(0.2+Math.random()*0.5),
+      r:Math.random()*2+0.5,
+      opacity:Math.random()*0.6+0.1,
+      color:colors[Math.floor(Math.random()*colors.length)],
+      life:Math.random(),lifeSpeed:0.002+Math.random()*0.004,
+    });
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p=>{
+      p.life+=p.lifeSpeed;
+      if(p.life>1){p.life=0;p.x=Math.random()*W;p.y=H+10;}
+      p.x+=p.vx;p.y+=p.vy;
+      const alpha=Math.sin(p.life*Math.PI)*p.opacity;
+      ctx.globalAlpha=alpha;
+      ctx.fillStyle=p.color;
+      ctx.shadowBlur=6;ctx.shadowColor=p.color;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+      ctx.shadowBlur=0;
+    });
+    ctx.globalAlpha=1;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>
